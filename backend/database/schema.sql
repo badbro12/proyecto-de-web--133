@@ -1,4 +1,4 @@
--- Crear la base de datos
+-- Crear la base de datos (MySQL)
 CREATE DATABASE IF NOT EXISTS proyecto_investigacion;
 USE proyecto_investigacion;
 
