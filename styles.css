@@ -1,0 +1,60 @@
+/* Encabezado */
+.encabezado{
+    background-color: black;
+    padding: 25px;
+}
+
+.titulo-sistema{
+    color: white !important;
+    font-size: 2.5rem !important;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Menú lateral */
+.bg-light{
+    background-color: #d9d9d9 !important;
+}
+
+.nav-link{
+    color: black !important;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.nav-link:hover{
+    background-color: #bfbfbf;
+    border-radius: 8px;
+}
+
+.text-danger{
+    color: red !important;
+}
+
+.card h5{
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.card h2{
+    font-size: 1.5rem;
+}
+
+.card{
+    border: none;
+    border-radius: 15px;
+}
+
+.card-body{
+    text-align: center;
+}
+
+.card:hover{
+    transform: scale(1.03);
+    transition: 0.3s;
+}
+
+#formProyecto{
+    display: none;
+}
