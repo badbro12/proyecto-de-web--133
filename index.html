@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>InvestigaHub — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-icon">🔬</div>
+    <div>
+      <div class="logo-name">InvestigaHub</div>
+      <div class="logo-tagline">Gestión de Proyectos</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a class="nav-item active" data-section="dashboard" onclick="showSection('dashboard',this)">
+      <span class="nav-icon">📊</span><span>Dashboard</span>
+    </a>
+    <a class="nav-item" data-section="proyectos" onclick="showSection('proyectos',this)">
+      <span class="nav-icon">📁</span><span>Proyectos</span>
+    </a>
+    <a class="nav-item" data-section="participantes" onclick="showSection('participantes',this)">
+      <span class="nav-icon">👥</span><span>Participantes</span>
+    </a>
+    <a class="nav-item" data-section="actividades" onclick="showSection('actividades',this)">
+      <span class="nav-icon">⚡</span><span>Actividades</span>
+    </a>
+    <a class="nav-item" data-section="usuarios" onclick="showSection('usuarios',this)">
+      <span class="nav-icon">👤</span><span>Usuarios</span>
+    </a>
+    <a class="nav-item" data-section="consultas" onclick="showSection('consultas',this)">
+      <span class="nav-icon">🔍</span><span>Consultas</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-badge">
+      <div class="user-avatar">A</div>
+      <div>
+        <div class="user-name" id="nombreUsuario">Usuario</div>
+        <div class="user-role" id="rolUsuario">—</div>
+      </div>
+    </div>
+    <button class="btn-logout" id="btnLogout">🚪 Cerrar sesión</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <span class="connection-dot" id="connDot" title="Estado del servidor"></span>
+    </div>
+  </header>
+
+  <!-- ════════ SECCIÓN: DASHBOARD ════════ -->
+  <section id="sec-dashboard" class="section active">
+    <div class="section-header">
+      <h2>Dashboard</h2>
+      <p class="section-desc">Resumen general del sistema</p>
+    </div>
+
+    <!-- Stats cards -->
+    <div class="stats-grid">
+      <div class="stat-card accent-blue">
+        <div class="stat-icon">📁</div>
+        <div class="stat-value" id="totalProyectos">—</div>
+        <div class="stat-label">Total Proyectos</div>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value" id="proyectosActivos">—</div>
+        <div class="stat-label">Proyectos Activos</div>
+      </div>
+      <div class="stat-card accent-teal">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" id="totalParticipantes">—</div>
+        <div class="stat-label">Participantes</div>
+      </div>
+      <div class="stat-card accent-purple">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-value" id="totalActividades">—</div>
+        <div class="stat-label">Actividades</div>
+      </div>
+    </div>
+
+    <!-- Chart + recent list -->
+    <div class="dash-grid">
+      <div class="card">
+        <div class="card-head">
+          <span>Proyectos por Estado</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="chartEstados"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span>Proyectos Recientes</span>
+          <a class="card-link" onclick="showSection('proyectos',null)">Ver todos →</a>
+        </div>
+        <div id="recentProyectos" class="recent-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ SECCIÓN: PROYECTOS ════════ -->
+  <section id="sec-proyectos" class="section">
+    <div class="section-header">
+      <div>
+        <h2>Proyectos</h2>
+        <p class="section-desc">Gestión completa de proyectos de investigación</p>
+      </div>
+      <button class="btn btn-primary" id="btnNuevoProyecto">+ Nuevo Proyecto</button>
+    </div>
+
+    <!-- Form panel -->
+    <div class="form-panel" id="formPanel" style="display:none">
+      <div class="form-panel-head">
+        <span id="formPanelTitle">Nuevo Proyecto</span>
+        <button class="btn-close-panel" onclick="cerrarFormProyecto()">✕</button>
+      </div>
+      <form id="formProyecto" class="grid-form">
+        <div class="field">
+          <label>Nombre del Proyecto *</label>
+          <input type="text" id="nombreProyecto" placeholder="Ej: IA para diagnóstico médico" required />
+        </div>
+        <div class="field">
+          <label>Responsable *</label>
+          <input type="text" id="responsableProyecto" placeholder="Ej: Dr. García" required />
+        </div>
+        <div class="field">
+          <label>Estado</label>
+          <select id="estadoProyecto">
+            <option value="activo">Activo</option>
+            <option value="en pausa">En Pausa</option>
+            <option value="finalizado">Finalizado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Fecha de Inicio *</label>
+          <input type="date" id="fechaInicio" required />
+        </div>
+        <div class="field">
+          <label>Fecha de Fin</label>
+          <input type="date" id="fechaFin" />
+        </div>
+        <div class="field field-full">
+          <label>Descripción</label>
+          <textarea id="descripcionProyecto" rows="3" placeholder="Descripción del proyecto…"></textarea>
+        </div>
+        <div class="form-actions field-full">
+          <button type="button" class="btn btn-ghost" onclick="cerrarFormProyecto()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnGuardarProyecto">Guardar Proyecto</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Search bar -->
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchProyecto" placeholder="Buscar proyecto…" oninput="filtrarProyectos()" />
+    </div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Estado</th>
+            <th>Inicio</th>
+            <th>Responsable</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaProyectos"></tbody>
+      </table>
+      <div id="emptyProyectos" class="empty-state" style="display:none">
+        <div class="empty-icon">📁</div>
+        <p>No hay proyectos registrados.</p>
+        <button class="btn btn-primary" onclick="document.getElementById('btnNuevoProyecto').click()">Crear el primero</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ SECCIÓN: PARTICIPANTES ════════ -->
+  <section id="sec-participantes" class="section">
+    <div class="section-header">
+      <div>
+        <h2>Participantes</h2>
+        <p class="section-desc">Miembros vinculados a los proyectos</p>
+      </div>
+      <button class="btn btn-primary" id="btnNuevoParticipante">+ Nuevo Participante</button>
+    </div>
+
+    <div class="form-panel" id="formPanelParticipante" style="display:none">
+      <div class="form-panel-head">
+        <span id="formPanelTitleP">Nuevo Participante</span>
+        <button class="btn-close-panel" onclick="cerrarFormParticipante()">✕</button>
+      </div>
+      <form id="formParticipante" class="grid-form">
+        <div class="field">
+          <label>Nombre *</label>
+          <input type="text" id="pNombre" placeholder="Ej: Juan Pérez" required />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input type="email" id="pEmail" placeholder="juan@ejemplo.com" />
+        </div>
+        <div class="field">
+          <label>Rol</label>
+          <select id="pRol">
+            <option value="investigador">Investigador</option>
+            <option value="asistente">Asistente</option>
+            <option value="becario">Becario</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Institución</label>
+          <input type="text" id="pInstitucion" placeholder="Ej: Universidad Nacional" />
+        </div>
+        <div class="field">
+          <label>Proyecto *</label>
+          <select id="pProyectoId" required></select>
+        </div>
+        <div class="form-actions field-full">
+          <button type="button" class="btn btn-ghost" onclick="cerrarFormParticipante()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnGuardarParticipante">Guardar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Rol</th>
+            <th>Institución</th>
+            <th>Proyecto</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaParticipantes"></tbody>
+      </table>
+      <div id="emptyParticipantes" class="empty-state" style="display:none">
+        <div class="empty-icon">👥</div>
+        <p>No hay participantes registrados.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ SECCIÓN: ACTIVIDADES ════════ -->
+  <section id="sec-actividades" class="section">
+    <div class="section-header">
+      <div>
+        <h2>Actividades</h2>
+        <p class="section-desc">Avances y tareas de cada proyecto</p>
+      </div>
+      <button class="btn btn-primary" id="btnNuevaActividad">+ Nueva Actividad</button>
+    </div>
+
+    <div class="form-panel" id="formPanelActividad" style="display:none">
+      <div class="form-panel-head">
+        <span id="formPanelTitleA">Nueva Actividad</span>
+        <button class="btn-close-panel" onclick="cerrarFormActividad()">✕</button>
+      </div>
+      <form id="formActividad" class="grid-form">
+        <div class="field">
+          <label>Proyecto *</label>
+          <select id="aProyectoId" required></select>
+        </div>
+        <div class="field">
+          <label>Fecha *</label>
+          <input type="date" id="aFecha" required />
+        </div>
+        <div class="field">
+          <label>Estado</label>
+          <select id="aEstado">
+            <option value="pendiente">Pendiente</option>
+            <option value="en progreso">En Progreso</option>
+            <option value="completado">Completado</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Avance (%)</label>
+          <input type="number" id="aPorcentaje" min="0" max="100" value="0" />
+        </div>
+        <div class="field field-full">
+          <label>Descripción *</label>
+          <textarea id="aDescripcion" rows="3" placeholder="Describe la actividad…" required></textarea>
+        </div>
+        <div class="form-actions field-full">
+          <button type="button" class="btn btn-ghost" onclick="cerrarFormActividad()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btnGuardarActividad">Guardar</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Descripción</th>
+            <th>Proyecto</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Avance</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tablaActividades"></tbody>
+      </table>
+      <div id="emptyActividades" class="empty-state" style="display:none">
+        <div class="empty-icon">⚡</div>
+        <p>No hay actividades registradas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════ SECCIÓN: USUARIOS ════════ -->
+  <section id="sec-usuarios" class="section">
+    <div class="section-header">
+      <div>
+        <h2>Usuarios</h2>
+        <p class="section-desc">Registrar nuevos usuarios en el sistema</p>
+      </div>
+    </div>
+    <div class="card" style="max-width:480px">
+      <div class="card-head"><span>Registrar nuevo usuario</span></div>
+      <form id="formUsuario" class="grid-form" style="padding:0">
+        <div class="field field-full">
+          <label>Nombre completo *</label>
+          <input type="text" id="nuevoNombre" placeholder="Ej: María González" required />
+        </div>
+        <div class="field field-full">
+          <label>Email *</label>
+          <input type="email" id="nuevoEmail" placeholder="maria@ejemplo.com" required />
+        </div>
+        <div class="field field-full">
+          <label>Contraseña *</label>
+          <input type="password" id="nuevoPassword" placeholder="Mínimo 6 caracteres" required />
+        </div>
+        <div class="field field-full">
+          <label>Rol</label>
+          <select id="nuevoRol">
+            <option value="investigador">Investigador</option>
+            <option value="admin">Administrador</option>
+          </select>
+        </div>
+        <div class="form-actions field-full">
+          <button type="submit" class="btn btn-primary">Crear Usuario</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ════════ SECCIÓN: CONSULTAS ════════ -->
+  <section id="sec-consultas" class="section">
+    <div class="section-header">
+      <h2>Consultas</h2>
+      <p class="section-desc">Busca y filtra información del sistema</p>
+    </div>
+
+    <div class="consultas-grid">
+      <!-- Por Estado -->
+      <div class="card">
+        <div class="card-head"><span>🏷️ Filtrar por Estado</span></div>
+        <div class="card-body">
+          <select id="filtroEstado" class="select-full">
+            <option value="">Selecciona un estado…</option>
+            <option value="activo">Activo</option>
+            <option value="en pausa">En Pausa</option>
+            <option value="finalizado">Finalizado</option>
+          </select>
+          <button class="btn btn-primary mt-2" onclick="consultarPorEstado()">Buscar</button>
+          <div id="resultadoEstado" class="query-result"></div>
+        </div>
+      </div>
+
+      <!-- Por Investigador -->
+      <div class="card">
+        <div class="card-head"><span>👩‍🔬 Buscar por Investigador</span></div>
+        <div class="card-body">
+          <input type="text" id="filtroInvestigador" placeholder="Nombre del investigador…" />
+          <button class="btn btn-primary mt-2" onclick="consultarPorInvestigador()">Buscar</button>
+          <div id="resultadoInvestigador" class="query-result"></div>
+        </div>
+      </div>
+
+      <!-- Por Fecha -->
+      <div class="card">
+        <div class="card-head"><span>📅 Filtrar por Rango de Fecha</span></div>
+        <div class="card-body">
+          <label style="font-size:.78rem;color:var(--muted);margin-bottom:4px;display:block">Desde</label>
+          <input type="date" id="filtroFechaInicio" />
+          <label style="font-size:.78rem;color:var(--muted);margin:8px 0 4px;display:block">Hasta</label>
+          <input type="date" id="filtroFechaFin" />
+          <button class="btn btn-primary mt-2" onclick="consultarPorFecha()">Buscar</button>
+          <div id="resultadoFecha" class="query-result"></div>
+        </div>
+      </div>
+
+      <!-- Búsqueda global -->
+      <div class="card card-full">
+        <div class="card-head"><span>🔎 Búsqueda Global</span></div>
+        <div class="card-body">
+          <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="busquedaGlobal" placeholder="Busca en proyectos, participantes e instituciones…" />
+          </div>
+          <button class="btn btn-primary mt-2" onclick="busquedaGlobal()">Buscar en todo</button>
+          <div id="resultadoGlobal" class="query-result"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- TOAST NOTIFICATION -->
+<div id="toast" class="toast"></div>
+
+<!-- Modal de confirmación -->
+<div id="modal" class="modal-overlay" style="display:none">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <h3 class="modal-title" id="modalTitle">¿Estás seguro?</h3>
+    <p class="modal-desc" id="modalDesc">Esta acción no se puede deshacer.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn btn-danger" id="modalConfirm">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
